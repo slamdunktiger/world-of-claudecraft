@@ -91,6 +91,15 @@ async function settle(): Promise<void> {
   await new Promise((resolve) => setImmediate(resolve));
 }
 
+// Heavy async suite: the fire-and-forget deed tail (FIFO queue + broadcast gate)
+// must settle before each assertion, and under a full 600+ test batch the shared
+// process hits GC/heap pressure that delays that settlement past the global 20s
+// testTimeout (the test flakes only in large batches, never solo or in small
+// batches). The repo convention (vite.config.ts testTimeout note) is that
+// "deliberately long walkers keep their own explicit budgets", so give this file
+// its own headroom instead of raising the global.
+vi.setConfig({ testTimeout: 60000 });
+
 beforeEach(async () => {
   // Drain any prior test's tail before clearing, so a straggler insert from an
   // earlier case can never land inside this test's assertions.
