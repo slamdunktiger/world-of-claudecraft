@@ -48,11 +48,17 @@ function sweep(ax: 'x' | 'z', at: number, lo: number, hi: number): string[] {
 }
 
 describe('terrain applier windows end without a blocking step', () => {
-  // KNOWN-UNFIXED, documented by the Willowfen investigation: the same
-  // applier-edge bug class fixed for applyStripFlankCoast and greenSeamT,
-  // at two further sites. Expected-fail so the suite stays green while the
-  // defect exists and trips the day the applier gets its skirt without
-  // this pin being promoted to a real assertion.
+  // KNOWN-UNFIXED. Root cause (measured 2026-08): the step is NOT in
+  // applyValeCoast itself — its weight is smooth across x=178/z=178. The
+  // cliff is in the RIDDEN surface: waterLevelAt flips from waterLevel() to
+  // -Infinity across the open-sea contour (isOpenSeaAt, world.ts:150, a hard
+  // terrainHeightSansEdits < waterLevel() threshold per 1yd cell), so where
+  // that contour cuts the Farshore strait at x=178 the water surface stands
+  // as a vertical wall beside the graded shore. Fix lives in the coast/sea
+  // grade at that contour (raise the seabed to meet waterLevel gradually),
+  // not in the applier. Same bug class as applyStripFlankCoast/greenSeamT but
+  // at a water-body boundary. Expected-fail keeps the suite green while the
+  // defect stands and trips the day the grade gets its skirt.
   it.fails('applyValeCoast: the x = 178 strait line and the z = 178 border segments', () => {
     const bad = [...sweep('x', 178, -180, 160), ...sweep('z', 178, -160, 160)];
     expect(bad, bad.slice(0, 8).join('\n')).toEqual([]);
@@ -67,7 +73,13 @@ describe('terrain applier windows end without a blocking step', () => {
     expect(bad, bad.slice(0, 8).join('\n')).toEqual([]);
   });
 
-  // KNOWN-UNFIXED: see the applyValeCoast note above.
+  // KNOWN-UNFIXED. Same root cause as applyValeCoast: the terracing weight is
+  // smooth, but the RIDDEN surface steps where the open-sea contour
+  // (isOpenSeaAt, world.ts:150) crosses z=1924 (and the band/corridor edges at
+  // z=1460/1856, x=+-92/+-178) — waterLevelAt flips to -Infinity past the
+  // contour, dropping the ridden surface from waterLevel() to the seabed. The
+  // measured step at z=1924 along x=102 is 0.69yd (> MAX_STEP 0.35). Fix is a
+  // graded shore at those contours, not an applier change.
   it.fails('applyFrostTerraces: the band and corridor window edges', () => {
     const bad = [
       ...sweep('z', 1460, -176, 176),
