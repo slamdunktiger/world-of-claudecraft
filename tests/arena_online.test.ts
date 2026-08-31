@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Heavy async GameServer integration suite: under a full 600+ test batch the
+// shared process hits GC/heap pressure that can push a couple of the
+// connection/queue tests past the global 20s testTimeout. The repo convention
+// (vite.config.ts testTimeout note) is that "deliberately long walkers keep
+// their own explicit budgets", so give this file its own headroom instead of
+// raising the global.
+vi.setConfig({ testTimeout: 60000 });
+
 vi.mock('../server/db', () => ({
   pool: { query: vi.fn(async () => ({ rows: [] })) },
   saveCharacterState: vi.fn(async () => {}),
