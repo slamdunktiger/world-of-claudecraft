@@ -4716,13 +4716,8 @@ export class Sim {
     const { meta } = r;
     if (meta.skinCatalog !== 'mech' || meta.skin !== skin) return false;
     this.setPlayerSkin(meta.entityId, 0, 'class');
-    // Return the armor plate item to the player's bags (issue #3680):
-    // unequipping a mech chroma restores the backing item so the chroma can
-    // be re-equipped or moved through the normal item flow.
-    const plateItemId = mechChromaItemId(chromaId);
-    if (plateItemId) {
-      this.addItem(plateItemId, 1, meta.entityId);
-    }
+    // The look was never itemized to begin with, so unequipping mints nothing
+    // back: re-equipping needs no item at all, the account already owns the look.
     return true;
   }
 
