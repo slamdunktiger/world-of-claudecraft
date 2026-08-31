@@ -9,13 +9,21 @@
 // recordings in parallel worker files. Assertions are unchanged; the shared run /
 // entities helpers live in run_scenarios.ts.
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { MOBS } from '../../src/sim/data';
 import { RIFT_IMPAIRED_FUSE_CAP } from '../../src/sim/mob/rift_escape_window';
 import { RIFT_S_ZONE_TEMPO } from '../../src/sim/rift/ranks';
 import { record } from './record';
 import { type Ev, entities, run } from './run_scenarios';
 import { SCENARIOS } from './scenarios';
+
+// Each scenario drives a full deterministic Sim run; several (e.g.
+// druid_engines, professions_gather, rift_boss_floor) take 20-30s and can push
+// past the global 20s testTimeout under a full-suite batch's GC/heap pressure.
+// The repo convention ("deliberately long walkers keep their own explicit
+// budgets", see vite.config.ts) gives this shard its own headroom rather than
+// inflating the global or weakening the parity assertions themselves.
+vi.setConfig({ testTimeout: 60000 });
 
 describe('coverage: each scenario fires its subsystem', () => {
   it('mob_lifecycle: frenzy + death-throes arm/detonate + wild respawn (despawn adds) + dungeon stays dead', () => {
