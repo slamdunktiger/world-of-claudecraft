@@ -5,7 +5,16 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+// This suite shells out to git (fresh-checkout rebuild) and runs sharp over
+// item art, so several cases push ~10s; under a 100+ test batch the shared
+// process hits GC/heap pressure that can push the checkout case past the global
+// 20s testTimeout. The repo convention ("deliberately long walkers keep their
+// own explicit budgets", see vite.config.ts) gives this file its own headroom
+// rather than inflating the global.
+vi.setConfig({ testTimeout: 60000 });
+
 import {
   assertItemArtAuditPass,
   buildItemArtAudit,
