@@ -704,8 +704,11 @@ describe('fire-light adoption sink', () => {
       .split('\n')
       .filter((line) => /\bfireLights\b/.test(line));
     // The prune, the two raw handoffs (battleground, budget pass), the sink
-    // handoff, and the station-props adoption loop. A floor keeps the loop from
-    // passing vacuously if the name ever moves wholesale.
+    // handoff, and the station-props adoption loop. The renderer teardown now
+    // routes through fireLightAdopter.disposeAll() instead of reaching
+    // this.fireLights directly, so it leaves no bare reach to sanction. A
+    // floor keeps the loop from passing vacuously if the name ever moves
+    // wholesale.
     expect(reaches).toHaveLength(5);
     for (const line of reaches) {
       expect(isSanctioned(line), `unsanctioned reach past the adoption seam: ${line.trim()}`).toBe(
