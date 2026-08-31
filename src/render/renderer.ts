@@ -3360,7 +3360,6 @@ export class Renderer {
     this.applyResolution();
   }
 
-  private dprUnwatch: (() => void) | null = null;
 
   // Reused presentFrame host, refreshed field-by-field each sync (see the call
   // site): class-field init runs before the constructor assigns the real
@@ -6184,7 +6183,6 @@ export class Renderer {
     };
 
     const settleMinPasses = this.lowGfx ? 8 : 10;
-
     const mountPrewarmResumeUnits = (): PrewarmResumeUnit[] =>
       [...mountPrewarmPendingKeys].map((key) => ({
         id: `mount:${key}`,
@@ -8006,7 +8004,6 @@ export class Renderer {
 
   // ---- 2v2 Fiesta juice (driven by the HUD's event handler) --------------
 
-  // Add camera trauma (0..1). Squared on apply, so small adds barely register
   // and big hits (kills, ring closes) really kick. A no-op for
   // reduced-motion players (OS query or the in-game switch).
   addShake(amount: number): void {
@@ -8923,8 +8920,7 @@ export class Renderer {
     const visual = v ? this.activeVisual(v) : null;
     if (!visual) return;
     this.attackTriggerCount++;
-    if (isSpinAttackAbility(abilityId)) visual.playWhirl();
-    else visual.playAttack(abilityId);
+    isSpinAttackAbility(abilityId) ? visual.playWhirl() : visual.playAttack(abilityId);
   }
 
   private playShoutFx(
@@ -12666,22 +12662,13 @@ export class Renderer {
     this.travelSpeedFx.dispose();
     this.blobShadows?.dispose();
     this.vfx.dispose();
-    // Dispose of flames (THREE.Mesh[])
     for (const flame of this.flames) {
       if (flame.parent) flame.parent.remove(flame);
-      if (flame.geometry) flame.geometry.dispose();
-      if (flame.material) {
-        if (Array.isArray(flame.material)) {
-          for (const m of flame.material) m.dispose();
-        } else {
-          flame.material.dispose();
-        }
-      }
+      flame.geometry?.dispose();
+      if (flame.material) (Array.isArray(flame.material) ? flame.material : [flame.material]).forEach((m: THREE.Material) => m.dispose());
     }
     this.flames = [];
-    // Dispose of fireLights (THREE.PointLight[])
     for (const light of this.fireLights) {
-      if (light.parent) light.parent.remove(light);
       if (light.shadow && light.shadow.map) light.shadow.map.dispose();
     }
     this.fireLights = [];
@@ -13323,13 +13310,8 @@ export class Renderer {
       if (slot.elapsed >= AOE_RING_LIFETIME) continue;
       slot.elapsed += dt;
       const a = aoeRingAnim(slot.elapsed);
-      if (!a.active) {
-        slot.ring.visible = false;
-        continue;
-      }
-      slot.ring.scale.setScalar(slot.radius * a.ringScale);
-      slot.mat.opacity = a.ringAlpha;
-    }
+      if (!a.active) { slot.ring.visible = false; continue; }
+      slot.ring.scale.setScalar(slot.radius * a.ringScale); slot.mat.opacity = a.ringAlpha;
   }
 
   private updateGroundAimReticle(dt: number): void {
