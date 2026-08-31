@@ -17616,7 +17616,7 @@ export class Hud {
     const current = this.sim.markerFor(entityId);
     let html = `<div class="ctx-title">${esc(name)}</div>`;
     for (let i = 0; i < RAID_MARKER_LABEL_KEYS.length; i++) {
-      const markerName = raidMarkerDisplayName(i);
+      const markerName = t(RAID_MARKER_LABEL_KEYS[i] ?? RAID_MARKER_LABEL_KEYS[0]);
       const aria =
         current === i
           ? t('hud.markers.markerSelectedAria', { marker: markerName })
@@ -18485,11 +18485,5 @@ export function abilityRequirementLines(
 // the assertion so the call sites do not each carry a non-null bang. Throws (a
 // dev-surfaced failure, never reached in practice) rather than asserting.
 function require2dContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('2D canvas context unavailable');
-  return ctx;
-}
-
-function raidMarkerDisplayName(index: number): string {
-  return t(RAID_MARKER_LABEL_KEYS[index] ?? RAID_MARKER_LABEL_KEYS[0]);
+  return canvas.getContext('2d') ?? (() => { throw new Error('2D canvas context unavailable'); })();
 }
