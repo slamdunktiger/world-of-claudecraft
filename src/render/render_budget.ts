@@ -479,7 +479,7 @@ export class RenderBudgetGovernor {
     // Measured headroom, the gate on ALL recovery: every clause is a real cost
     // reading, never inferred from wall cadence.
     const canRecover =
-      this.frameMsEma <= this.budget.recoverFrameMs &&
+      (this.externalFrameCap || this.frameMsEma <= this.budget.recoverFrameMs) &&
       totalMs <= this.budget.recoverFrameMs &&
       submitMs <= Math.max(8, this.budget.recoverFrameMs * 0.7) &&
       rawSubmitMs <= SUBMIT_STALL_RECOVERY_CEILING_MS &&
