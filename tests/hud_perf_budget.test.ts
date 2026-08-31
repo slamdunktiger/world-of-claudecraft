@@ -763,8 +763,13 @@ const COLD_PAINTER_ALLOWANCES: ReadonlyArray<ColdPainter> = [
   // stable, granted per file, and the count is what makes a THIRD read in the same file (the
   // shape that turns a rebuild loop into thrash) a conscious act.
   {
+    // Two counted rect reads, each taken once per user-gesture and never on a
+    // redraw: (1) onWindowResized captures the root box to re-clamp the window
+    // inside the viewport, (2) openItemMenuFor reads the clicked row's box as the
+    // fallback anchor when a keyboard-activated click carries no clientX/clientY.
+    // Neither runs inside the per-frame/redraw painter, so both are cold-path.
     file: 'bags_window.ts',
-    reflowAllow: { '.getBoundingClientRect': 1, '.scrollTop': 4 },
+    reflowAllow: { '.getBoundingClientRect': 2, '.scrollTop': 4 },
     driverAllow: {},
   },
   // The two touch gesture layers of the mobile action ring, one entry each because they
