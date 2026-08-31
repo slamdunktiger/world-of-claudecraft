@@ -565,6 +565,7 @@ import { MapWindowPainter } from './map_window_painter';
 import { MAP_OPEN_ZOOM, type MapWindowMode, mapWindowMode } from './map_window_view';
 import { marketCollectIndicatorView } from './market_view';
 import { MarketWindow } from './market_window';
+import { resolveMarketSearchTerm } from './market_search_resolver';
 import { materialHintLine } from './material_hint_view';
 import { materialProfessionHintText } from './material_profession_hint_view';
 import { Meters } from './meters';
@@ -4751,6 +4752,7 @@ export class Hud {
     },
     confirmDialog: (title, body, okText, cancelText, onOk) =>
       this.confirmDialog(title, body, okText, cancelText, onOk),
+    resolveSearchTerm: (searchTerm: string) => resolveMarketSearchTerm(searchTerm),
   });
   // Ravenpost mailbox window painter (mailbox_view.ts core + mailbox_window.ts
   // painter). It owns the mailbox view-state (tab, opened letter, staged
