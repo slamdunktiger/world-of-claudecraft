@@ -28,6 +28,14 @@ import { Sim } from '../src/sim/sim';
 import type { SimContext } from '../src/sim/sim_context';
 import { abilityScalingPower, channelTickBonus } from '../src/sim/spell_scaling';
 import { CAST_QUEUE_WINDOW_SEC, type Entity, type SimEvent } from '../src/sim/types';
+
+// Among the heaviest suites in the repo (~1.26s/test): under a full 600+ test
+// batch the shared process hits GC/heap pressure and a couple of the long
+// tick-loop tests brush the global 20s timeout. The repo convention
+// (vite.config.ts testTimeout note) is that "deliberately long walkers keep
+// their own explicit budgets", so give this file its own headroom instead of
+// raising the global.
+vi.setConfig({ testTimeout: 60000 });
 import { en } from '../src/ui/i18n.resolved.generated';
 import { EMPTY_TEST_WORLD } from './sim_shared';
 

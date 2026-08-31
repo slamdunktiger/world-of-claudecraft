@@ -11,6 +11,13 @@ import type { SimContext } from '../src/sim/sim_context';
 import type { Entity, SimEvent } from '../src/sim/types';
 import { abilityDisplayDescription } from '../src/ui/ability_description';
 
+// Heaviest suite in the repo (~1.75s/test): under a full 600+ test batch the
+// shared process hits GC/heap pressure and a couple of the long tick-loop tests
+// brush the global 20s timeout. The repo convention (vite.config.ts testTimeout
+// note) is that "deliberately long walkers keep their own explicit budgets", so
+// give this file its own headroom instead of raising the global.
+vi.setConfig({ testTimeout: 60000 });
+
 const NECROMANCY_IDS = new Set([
   'graveguard',
   'necromancy_skeletal_warrior',
