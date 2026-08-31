@@ -12,7 +12,14 @@
 // often drops into on purpose, and railing both would make the circuit a
 // corridor. The cases below pin both halves of that, plus every gap the parapet
 // has to leave.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// The OUTER-edge curtain case walks every Last Keep curtain edge in one frame
+// and can exceed the global 20s testTimeout under a full-suite batch's
+// GC/heap pressure (timed out at ~23s in the sweep, passes solo). The repo
+// convention ("deliberately long walkers keep their own explicit budgets", see
+// vite.config.ts) gives this sim-scenario suite its own headroom.
+vi.setConfig({ testTimeout: 60000 });
 import { CASTLE, CASTLE_GATES, castleParapetSegments } from '../src/sim/castle_layout';
 import { DAWNHOLD, dawnholdParapetSegments } from '../src/sim/dawnhold_layout';
 import { Sim } from '../src/sim/sim';
