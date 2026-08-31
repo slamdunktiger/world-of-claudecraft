@@ -31,7 +31,6 @@ import { markDialogRoot } from './dialog_root';
 import { dropdownKeyNav } from './dropdown_nav';
 import { computeDropdownPlacement } from './dropdown_position';
 import { itemDisplayName, tEntity } from './entity_i18n';
-import { ITEMS } from '../sim/data';
 import { esc } from './esc';
 import { formatMoney as formatLocalizedMoney, formatNumber, t } from './i18n';
 import { marketArmorBadge, marketArmorPips, marketHeroicStar } from './market_armor_badge';
@@ -109,6 +108,10 @@ export interface MarketWindowDeps extends PainterHostPresentation {
     cancelText: string,
     onOk: () => void,
   ): void;
+  /** Resolve a typed search term to its canonical item name/ID. Implemented by the
+   *  host (which may consult item content) so this painter stays free of any
+   *  direct sim-data import; it renders resolved rows, it does not resolve them. */
+  resolveSearchTerm(searchTerm: string): string;
 }
 
 export class MarketWindow {
@@ -140,7 +143,6 @@ export class MarketWindow {
   // once the server echoes the new myListingCount without clobbering the form.
   private lastMyListingCount = -1;
   private lastMaxListings = -1;
-  private localizedNameEntries: Array<{ localized: string; itemID: string }>;
   private openerFocus: HTMLElement | null = null;
   // Armed by onReconnected() and cleared by the next refreshIfChanged() that
   // actually observes a post-reconnect MarketInfo. onReconnected() fires
@@ -154,22 +156,10 @@ export class MarketWindow {
   private pendingReconnectResync = false;
 
   constructor(private readonly deps: MarketWindowDeps) {
-    this.localizedNameEntries = Object.entries(ITEMS).map(([id, item]) => ({
-      localized: tEntity({ kind: 'item', id, field: 'name' }),
-      itemID: id,
-    }));
   }
 
   private convertSearchTerm(searchTerm: string): string {
-    if (!searchTerm) return searchTerm;
-    const lcSearch = searchTerm.trim().toLowerCase();
-    for (const entry of this.localizedNameEntries) {
-      if (entry.localized.toLowerCase().includes(lcSearch)) {
-        const item = ITEMS[entry.itemID];
-        return item.name ?? entry.itemID;
-      }
-    }
-    return searchTerm;
+    return this.deps.resolveSearchTerm(searchTerm);
   }
 
   get isOpen(): boolean {
