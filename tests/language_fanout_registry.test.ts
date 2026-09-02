@@ -330,9 +330,9 @@ const ANSWERED: readonly AnsweredSurface[] = [
   },
   {
     file: 'market_window.ts',
-    memos: ['lastSig', 'lastSellPriceRefSig'],
+    memos: ['lastSig', 'lastSellPriceRefSig', 'lastMyListingCount', 'lastMaxListings'],
     answer: 'this.marketWindow.render',
-    why: 'the listing ids, prices and the active tab; render() carries no self-gate. lastSellPriceRefSig (issue 3043) is the Sell tab price reference: render() rebuilds it via renderSell -> sellPriceRefHtml with the CURRENT language, the same full-rebuild path that already answers lastSig',
+    why: 'the listing ids, prices and the active tab; render() carries no self-gate. lastSellPriceRefSig (issue 3043) is the Sell tab price reference: render() rebuilds it via renderSell -> sellPriceRefHtml with the CURRENT language, the same full-rebuild path that already answers lastSig. lastMyListingCount,lastMaxListings (issue 3698) are the Sell tab listing-count echo: refreshSellNote patches the same .mkt-note node renderSell mints, localizes itemUi.market.sellNote via t() + formatNumber, and runs from the same refreshIfChanged() Sell-tab arm as refreshSellPriceRef, so this render() arm answers both new memos rather than a second unclassified gate.',
   },
   {
     file: 'woc_market_window.ts',
