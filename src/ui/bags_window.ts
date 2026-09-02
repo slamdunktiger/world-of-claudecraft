@@ -324,7 +324,6 @@ private resizeObserver: (() => void) | null = null;
   // from arming forever.
   private sortSettleArmedAt = 0;
   private lastSortBaseline = '';
-  private resizeObserver: (() => void) | null = null;
 
   constructor(private readonly deps: BagsWindowDeps) {
     this.resizeObserver = () => this.onWindowResized();

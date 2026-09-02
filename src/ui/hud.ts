@@ -16961,7 +16961,7 @@ export class Hud {
   // -------------------------------------------------------------------------
 
   toggleTalents(): void {
-    const player = this.sim.entities.get(this.sim.primaryId);
+    const player = this.sim.entities.get(this.sim.playerId);
     if (player?.inCombat || player?.nythraxis) {
       return; // prevent opening talents during combat or boss encounter
     }
