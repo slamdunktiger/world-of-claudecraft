@@ -88,6 +88,12 @@ export interface FireLightAdopter {
   /** The same operation shaped like `Array.push`, for subsystems handed the
    *  registry. They keep calling `.push(light)` and cannot bypass adoption. */
   readonly sink: FireLightSink;
+  /** Teardown: dispose every registered light (scene detach + shadow maps),
+   *  clear the registry, and dirty the rank so the rebuild guard cannot hold
+   *  a stale count. The one legal way for the owning renderer to tear down its
+   *  fire lights; every other site must retire individual subtrees via
+   *  pruneFireLights (which preserves the rank-dirty contract). */
+  disposeAll(): THREE.PointLight[];
 }
 
 /**
@@ -123,6 +129,19 @@ export function createFireLightAdopter(
         for (const light of lights) adopt(light);
         return fireLights().length;
       },
+    },
+    disposeAll: (): THREE.PointLight[] => {
+      const lights = fireLights();
+      const disposed: THREE.PointLight[] = [];
+      for (let i = lights.length - 1; i >= 0; i--) {
+        const light = lights[i];
+        if (light.parent) light.parent.remove(light);
+        if (light.shadow && light.shadow.map) light.shadow.map.dispose();
+        disposed.push(light);
+        lights.splice(i, 1);
+      }
+      markRankDirty();
+      return disposed;
     },
   };
 }

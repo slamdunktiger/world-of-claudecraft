@@ -12680,11 +12680,7 @@ export class Renderer {
     }
     this.flames = [];
     // Dispose of fireLights (THREE.PointLight[])
-    for (const light of this.fireLights) {
-      if (light.parent) light.parent.remove(light);
-      if (light.shadow && light.shadow.map) light.shadow.map.dispose();
-    }
-    this.fireLights = [];
+    this.fireLightAdopter.disposeAll();
   }
 
   /**
