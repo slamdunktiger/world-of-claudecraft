@@ -155,7 +155,6 @@ import {
   classHasSkin,
   EVENT_SKIN_TOKEN_ID,
   MECH_CHROMAS,
-  mechChromaItemId,
   mechChromaSkinIndex,
   rankAllowsMechChroma,
   rankAllowsSkin,
