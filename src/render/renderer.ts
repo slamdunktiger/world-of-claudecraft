@@ -3360,6 +3360,9 @@ export class Renderer {
     this.applyResolution();
   }
 
+
+  private dprUnwatch: (() => void) | null = null;
+
   // Reused presentFrame host, refreshed field-by-field each sync (see the call
   // site): class-field init runs before the constructor assigns the real
   // surfaces, so only the constant watch is set here and nothing is read before
@@ -8001,6 +8004,9 @@ export class Renderer {
     }
   }
 
+  // ---- 2v2 Fiesta juice (driven by the HUD's event handler) --------------
+
+  // and big hits (kills, ring closes) really kick. A no-op for
   // reduced-motion players (OS query or the in-game switch).
   addShake(amount: number): void {
     if (this.reducedMotion()) return;
@@ -8910,10 +8916,13 @@ export class Renderer {
   }
 
   private attackTriggerCount = 0;
+
+  triggerAttack(entityId: number, abilityId?: string): void {
+    const v = this.views.get(entityId);
     const visual = v ? this.activeVisual(v) : null;
+    if (!visual) return;
     this.attackTriggerCount++;
-    if (isSpinAttackAbility(abilityId)) visual.playWhirl();
-    else visual.playAttack(abilityId);
+    isSpinAttackAbility(abilityId) ? visual.playWhirl() : visual.playAttack(abilityId);
   }
 
   private playShoutFx(
@@ -8966,7 +8975,6 @@ export class Renderer {
   // -------------------------------------------------------------------------
   // Per-frame sync
   // -------------------------------------------------------------------------
-
   // ---------------------------------------------------------------------
   // Dungeon interiors (see dungeon.ts), built lazily per instance origin.
   // ---------------------------------------------------------------------
@@ -12629,7 +12637,10 @@ export class Renderer {
 
   /** The terrain chunk group, for the editor to raycast/rebuild. */
   get terrainGroup(): THREE.Group {
+    return this.terrainView.group;
+  }
 
+  /**
    * Stop terrain streaming and tear down its worker pool. rebuildTerrain does
    * this for a replaced view; a host that discards the whole renderer (the
    * editor viewport) must call it too, or every teardown leaks the pool's
@@ -12652,20 +12663,12 @@ export class Renderer {
     this.travelSpeedFx.dispose();
     this.blobShadows?.dispose();
     this.vfx.dispose();
-    // Dispose of flames (THREE.Mesh[])
     for (const flame of this.flames) {
       if (flame.parent) flame.parent.remove(flame);
-      if (flame.geometry) flame.geometry.dispose();
-      if (flame.material) {
-        if (Array.isArray(flame.material)) {
-          for (const m of flame.material) m.dispose();
-        } else {
-          flame.material.dispose();
-        }
-      }
+      flame.geometry?.dispose();
+      if (flame.material) (Array.isArray(flame.material) ? flame.material : [flame.material]).forEach((m: THREE.Material) => m.dispose());
     }
     this.flames = [];
-    // Dispose of fireLights (THREE.PointLight[])
     this.fireLightAdopter.disposeAll();
   }
 
@@ -13305,12 +13308,8 @@ export class Renderer {
       if (slot.elapsed >= AOE_RING_LIFETIME) continue;
       slot.elapsed += dt;
       const a = aoeRingAnim(slot.elapsed);
-      if (!a.active) {
-        slot.ring.visible = false;
-        continue;
-      }
-      slot.ring.scale.setScalar(slot.radius * a.ringScale);
-      slot.mat.opacity = a.ringAlpha;
+      if (!a.active) { slot.ring.visible = false; continue; }
+      slot.ring.scale.setScalar(slot.radius * a.ringScale); slot.mat.opacity = a.ringAlpha;
     }
   }
 
