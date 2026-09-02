@@ -89,6 +89,13 @@ const DUNGEON_LIGHT_DISTANCE = 34;
 const MODULE_SCALE = 2; // KayKit walls are 4u tall/long -> 8u at our room scale
 const FLOOR_CELL = 4; // kit floor tiles are 4x4 at MODULE_SCALE 1
 const FLOOR_Y = -0.05; // tile tops sit 0.05 above origin; sink so tops land at y=0
+// sanctum: necromantic ritual furniture placements per chamber [x, z, rotationY]
+const SANCTUM_CANDLE_PLACEMENTS: readonly [number, number, number][] = [
+  [-20, 16, Math.PI / 2],
+  [20, 34, -Math.PI / 2],
+  [-20, 96, Math.PI / 2],
+  [20, 132, -Math.PI / 2],
+];
 const PILLAR_XZ_SCALE = 1.3; // 1.5u kit pillar -> ~1.95u footprint (collider r=1)
 
 export type DungeonInteriorVariant =
@@ -2863,22 +2870,14 @@ export class DungeonInteriors {
       p.add('gravestone', 3.4, 0.6, layout.dais.z + 4, Math.PI, 1.7);
       return;
     }
-    // sanctum: necromantic ritual furniture per chamber
-    for (const [x, z, ry] of [
-      [-20, 16, Math.PI / 2],
-      [20, 34, -Math.PI / 2],
-      [-20, 96, Math.PI / 2],
-      [20, 132, -Math.PI / 2],
-    ] as [number, number, number][]) {
-      p.add('shrine_candles', x, 0, z, ry, 1.6);
-      p.add('plaque_candles', x, 0, z + 4.2, ry, 1.5);
+    for (const [x, z, ry] of SANCTUM_CANDLE_PLACEMENTS) {
+      p.add('shrine_candles', x, 0, z, ry, 1.6); p.add('plaque_candles', x, 0, z + 4.2, ry, 1.5);
     }
     for (const pt of layout.pillars) {
       if (hash2(pt.x, pt.z * 1.3) < 0.45) continue;
       const dir = pt.x < 0 ? 1 : -1;
       p.add('candle_triple', pt.x + dir * 1.9, 0, pt.z + 1.7, hash2(pt.z, pt.x) * Math.PI, 1.45);
     }
-    p.add('gravestone', -3.4, 0.6, layout.dais.z + 4, Math.PI, 1.8);
-    p.add('gravestone', 3.4, 0.6, layout.dais.z + 4, Math.PI, 1.8);
+    p.add('gravestone', -3.4, 0.6, layout.dais.z + 4, Math.PI, 1.8); p.add('gravestone', 3.4, 0.6, layout.dais.z + 4, Math.PI, 1.8);
   }
 }
