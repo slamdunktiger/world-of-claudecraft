@@ -13312,6 +13312,7 @@ export class Renderer {
       const a = aoeRingAnim(slot.elapsed);
       if (!a.active) { slot.ring.visible = false; continue; }
       slot.ring.scale.setScalar(slot.radius * a.ringScale); slot.mat.opacity = a.ringAlpha;
+    }
   }
 
   private updateGroundAimReticle(dt: number): void {
