@@ -342,32 +342,32 @@ private resizeObserver: (() => void) | null = null;
     const el = this.deps.root();
     if (el.style.display === 'none') return;
     const rect = el.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      let needsReposition = false;
-      let newLeft = rect.left;
-      let newTop = rect.top;
-      if (rect.left < 0) {
-        newLeft = 0;
-        needsReposition = true;
-      }
-      if (rect.top < 0) {
-        newTop = 0;
-        needsReposition = true;
-      }
-      if (rect.right > viewportWidth) {
-        newLeft = viewportWidth - rect.width;
-        needsReposition = true;
-      }
-      if (rect.bottom > viewportHeight) {
-        newTop = viewportHeight - rect.height;
-        needsReposition = true;
-      }
-      if (needsReposition) {
-        el.style.left = `${newLeft}px`;
-        el.style.top = `${newTop}px`;
-      }
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    let needsReposition = false;
+    let newLeft = rect.left;
+    let newTop = rect.top;
+    if (rect.left < 0) {
+      newLeft = 0;
+      needsReposition = true;
     }
+    if (rect.top < 0) {
+      newTop = 0;
+      needsReposition = true;
+    }
+    if (rect.right > viewportWidth) {
+      newLeft = viewportWidth - rect.width;
+      needsReposition = true;
+    }
+    if (rect.bottom > viewportHeight) {
+      newTop = viewportHeight - rect.height;
+      needsReposition = true;
+    }
+    if (needsReposition) {
+      el.style.left = `${newLeft}px`;
+      el.style.top = `${newTop}px`;
+    }
+  }
 
   /**
    * Repaint the money row when the purse moved, the staleness contract this window
@@ -453,10 +453,6 @@ private resizeObserver: (() => void) | null = null;
     this.deps.restoreFocus(this.openerFocus);
     this.openerFocus = null;
     this.deps.onClosed();
-      if (this.resizeObserver) {
-        window.removeEventListener('resize', this.resizeObserver);
-        this.resizeObserver = null;
-      }
   }
 
   render(): void {
