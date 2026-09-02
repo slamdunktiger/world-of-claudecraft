@@ -3360,8 +3360,6 @@ export class Renderer {
     this.applyResolution();
   }
 
-  private dprUnwatch: (() => void) | null = null;
-
   // Reused presentFrame host, refreshed field-by-field each sync (see the call
   // site): class-field init runs before the constructor assigns the real
   // surfaces, so only the constant watch is set here and nothing is read before
@@ -6184,7 +6182,6 @@ export class Renderer {
     };
 
     const settleMinPasses = this.lowGfx ? 8 : 10;
-
     const mountPrewarmResumeUnits = (): PrewarmResumeUnit[] =>
       [...mountPrewarmPendingKeys].map((key) => ({
         id: `mount:${key}`,
@@ -8004,10 +8001,6 @@ export class Renderer {
     }
   }
 
-  // ---- 2v2 Fiesta juice (driven by the HUD's event handler) --------------
-
-  // Add camera trauma (0..1). Squared on apply, so small adds barely register
-  // and big hits (kills, ring closes) really kick. A no-op for
   // reduced-motion players (OS query or the in-game switch).
   addShake(amount: number): void {
     if (this.reducedMotion()) return;
@@ -8917,11 +8910,7 @@ export class Renderer {
   }
 
   private attackTriggerCount = 0;
-
-  triggerAttack(entityId: number, abilityId?: string): void {
-    const v = this.views.get(entityId);
     const visual = v ? this.activeVisual(v) : null;
-    if (!visual) return;
     this.attackTriggerCount++;
     if (isSpinAttackAbility(abilityId)) visual.playWhirl();
     else visual.playAttack(abilityId);
@@ -12640,10 +12629,7 @@ export class Renderer {
 
   /** The terrain chunk group, for the editor to raycast/rebuild. */
   get terrainGroup(): THREE.Group {
-    return this.terrainView.group;
-  }
 
-  /**
    * Stop terrain streaming and tear down its worker pool. rebuildTerrain does
    * this for a replaced view; a host that discards the whole renderer (the
    * editor viewport) must call it too, or every teardown leaks the pool's

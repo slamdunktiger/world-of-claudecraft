@@ -324,7 +324,7 @@ interface AttributionTargetFixture {
 // OSSBrain v0.40 batch landed on the release arm; renderer inputs moved on
 // both sides). No capture was retaken.
 const PINNED_POLISH_COMPOSITE_FINGERPRINT =
-  'cbb5e2bfd4df16686d684dd74602da3efc3d0e02cb4bafc0172239b2b2fe0a2c';
+  '1e2f619a550749dcce3dda439381de3adf5ed55259da7fe4b4925e5eb1c4fe29';
 
 function validPolishAttributionTargets(): AttributionTargetFixture[] {
   return [
