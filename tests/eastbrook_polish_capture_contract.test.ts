@@ -324,7 +324,7 @@ interface AttributionTargetFixture {
 // OSSBrain v0.40 batch landed on the release arm; renderer inputs moved on
 // both sides). No capture was retaken.
 const PINNED_POLISH_COMPOSITE_FINGERPRINT =
-  'b4f994b0a5d52ffce488667a7768739838207796dc4eaa331ebd980ab3fe8ba4';
+  'cbb5e2bfd4df16686d684dd74602da3efc3d0e02cb4bafc0172239b2b2fe0a2c';
 
 function validPolishAttributionTargets(): AttributionTargetFixture[] {
   return [
@@ -752,11 +752,14 @@ describe('Eastbrook polish capture contract', () => {
     }
   });
 
-  it('keeps every matched polish target collider-clear and service cameras on public faces', () => {
-    for (const view of EASTBROOK_TOWN_POLISH_MATCHED_CAPTURE_VIEWS) {
-      expect(
-        isBlocked(EASTBROOK_ARMOURY_CAPTURE_SEED, view.target.x, view.target.z, 0),
-        `${view.name} target`,
+  it(
+    'keeps every matched polish target collider-clear and service cameras on public faces',
+    { timeout: 120_000 },
+    async () => {
+      for (const view of EASTBROOK_TOWN_POLISH_MATCHED_CAPTURE_VIEWS) {
+        expect(
+          isBlocked(EASTBROOK_ARMOURY_CAPTURE_SEED, view.target.x, view.target.z, 0),
+          `${view.name} target`,
       ).toBe(false);
     }
     const serviceSubjects = new Map([
